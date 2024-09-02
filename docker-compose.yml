@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:${TRAEFIKVERSION}
+    restart: unless-stopped
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./conf/acme.json:/acme.json
+      - ./conf/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./conf/traefikdynamic:/etc/traefik/dynamic:ro
+      - ./logs/traefik.log:/etc/traefik/applog.log
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      TRAEFIK_PILOT_DASHBOARD: "false"
+      TZ: "Europe/Paris"
+
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wordpress
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    volumes:
+      - wordpress_data:/var/www/html
+      - /etc/localtime:/etc/localtime:ro
+      - ./conf/php.ini:/usr/local/etc/php/conf.d/custom.ini
+
+  nginxcromos:
+    image: nginx:${NGINXVERSION}
+    restart: unless-stopped
+    volumes:
+      - ./conf/nginx:/etc/nginx:ro
+      - /etc/localtime:/etc/localtime:ro
+      - datanginxlogs:/var/log/nginx
+      - wordpress_data:/var/www/html
+    links:
+      - wordpress
+
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+
+  redis:
+    image: redis:${REDISVERSION}
+    restart: unless-stopped
+    command: redis-server --maxmemory 1024mb --maxmemory-policy allkeys-lru --requirepass changemeWithALongPassword --appendonly yes --bind redis
+    environment:
+      TZ: "Europe/Paris"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - dataredis:/data
+
+volumes:
+  wordpress_data:
+  db_data:
+  datanginxlogs:
+  dataredis:
+  datawp:
+
+

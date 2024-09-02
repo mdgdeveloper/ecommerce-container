@@ -1,0 +1,6 @@
+http:
+  services:
+    sc-cromos:
+      loadBalancer:
+        servers:
+          - url: "http://nginxcromos:80"

@@ -1,0 +1,23 @@
+http:
+  routers:
+    rt-traefik:
+      entryPoints:
+        - websecure
+      middlewares:
+        - authentification
+      service: api@internal
+      rule: Host(`traefik.cromospersonalizados.com`)
+      tls:
+        certResolver: letsencrypt
+
+    rt-cromos:
+      entryPoints:
+        - websecure
+      middlewares:
+        - security
+        - compression
+      service: sc-cromos
+      rule: Host(`cromospersonalizados.com`, `www.cromospersonalizados.com`)
+      tls:
+        certResolver: letsencrypt
+        
