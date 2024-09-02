@@ -37,6 +37,7 @@ MYSQL_PASSWORD=#Define a Secure Password
 TRAEFIKVERSION=2.6
 NGINXVERSION=mainline
 REDISVERSION=6.2
+REDISPASS=#Define a Secure Password
 
 ```
 
