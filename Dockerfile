@@ -1,5 +1,5 @@
 # Dockerfile
-FROM wordpress:latest
+FROM wordpress:6.6.1-php8.1-fpm
 
 # Add custom plugins or themes if needed
 COPY plugins /var/www/html/wp-content/plugins/
@@ -17,7 +17,7 @@ RUN mkdir -p /var/www/html/wp-content/uploads && \
     chown -R www-data:www-data /var/www/html/wp-content/uploads && \
     chmod -R 755 /var/www/html/wp-content/uploads
 
-RUN a2enmod rewrite
+# RUN a2enmod rewrite
 
 # Expose the port WordPress runs on
 EXPOSE 80
