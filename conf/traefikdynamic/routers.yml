@@ -10,6 +10,13 @@ http:
       tls:
         certResolver: letsencrypt
 
+    rt-cromos-unsafe:
+      entryPoints:
+        - web
+      rule: Host(`cromospersonalizados.com`, `www.cromospersonalizados.com`)
+      service: sc-cromos
+
+
     rt-cromos:
       entryPoints:
         - websecure
